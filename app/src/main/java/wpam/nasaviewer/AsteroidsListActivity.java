@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AsteroidsListActivity extends ListActivity { //implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -52,18 +53,7 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      //  setContentView(R.layout.activity_asteroids_list);
-
-        // Create a progress bar to display while the list loads
-      /*  ProgressBar progressBar = new ProgressBar(this);
-        progressBar.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.WRAP_CONTENT,
-                ListView.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        progressBar.setIndeterminate(true);
-        getListView().setEmptyView(progressBar);
-
-        // Must add the progress bar to the root of the layout
-        ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-        root.addView(progressBar);*/
+        setContentView(R.layout.activity_asteroids_list);
 
         //lv = (ListView) findViewById(R.id.text_list_view);
 
@@ -77,22 +67,22 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
         monthEnd = extras.getString("MONTHEND");
         yearEnd = extras.getString("YEAREND");
 
-       // getJSON json = new getJSON();
-        //json.execute("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + yearStart + "-" + monthStart +"-" + dayStart +
-       //         "&end_date=" + yearEnd + "-" + monthEnd + "-" + dayEnd + "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
+        getJSON json = new getJSON();
+        json.execute("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + yearStart + "-" + monthStart +"-" + dayStart +
+                "&end_date=" + yearEnd + "-" + monthEnd + "-" + dayEnd + "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
 
-        data.add("one");
-        data.add("two");
+       // data.add("one");
+        //data.add("two");
         // storing string resources into Array
         // here you store the array of string you got from the database
-        String[] numbers = {"one", "two"};
+
         // Binding Array to ListAdapter
-        this.setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, numbers));
+      //  this.setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data));
         // refer the ArrayAdapter Document in developer.android.com
-        ListView lv = getListView();
+      //  lv = getListView();
 
         // listening to single list item on click
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      /*  lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
@@ -105,14 +95,14 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
                 i.putExtra("number", num);
                 startActivity(i);
             }
-        });
+        });*/
 
 
     }
 
     private class getJSON extends AsyncTask<String, Void, String> {
 
-        @Override
+ /*       @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(getApplicationContext());
@@ -120,7 +110,7 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
             progressDialog.setCancelable(false);
             progressDialog.show();
 
-        }
+        }*/
 
         @Override
         protected String doInBackground(String[] params) {
@@ -155,6 +145,8 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
             try {
                 JSONObject object = new JSONObject(message);
                 JSONObject asteroids = object.getJSONObject("near_earth_objects");
+                if (Integer.parseInt(monthEnd) < 10)
+                    monthEnd = "0" + monthEnd;
                 JSONArray asteroidsList = asteroids.getJSONArray(yearEnd + "-" + monthEnd + "-" + dayEnd);
                 for (int i=0; i<asteroidsList.length(); i++) {
                     JSONObject asteroid = asteroidsList.getJSONObject(i);
@@ -168,10 +160,13 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
                 e.printStackTrace();
             }
 
-            if (progressDialog.isShowing()) {
+          /*  if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
-            }
-            setListAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, data));
+            }*/
+            lv = getListView();
+
+            //TODO Null pointer exception - nie widzi list view
+            lv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, data));
         }
     }
 
