@@ -1,9 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     tools:context="wpam.nasaviewer.AsteroidsActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/textViewInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Difference between dates must be max 7 days."
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/textViewStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Start date"
+        android:gravity="center"/>
+
+    <DatePicker
+        android:id="@+id/datePickerStart"
+        android:layout_width="wrap_content"
+        android:layout_height="146dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:datePickerMode="spinner"
+        android:calendarViewShown="false"/>
+
+    <TextView
+        android:id="@+id/textViewEnd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="End date"
+        android:gravity="center"/>
+
+    <DatePicker
+        android:id="@+id/datePickerEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="146dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:datePickerMode="spinner"
+        android:calendarViewShown="false"/>
+
+    <Button
+        android:id="@+id/btnShowAsteroids"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show asteroids"
+        android:onClick="showAsteroidsBtn_OnClick"/>
+
+</android.widget.LinearLayout>
+
+
+</ScrollView>
