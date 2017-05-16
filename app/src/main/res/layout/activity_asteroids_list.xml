@@ -9,10 +9,17 @@
     android:orientation="vertical"
     tools:context="wpam.nasaviewer.AsteroidsListActivity">
 
-    <ListView
-        android:id="@+id/android:list"
+    <ProgressBar
+        android:id="@+id/progressBar3"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ExpandableListView
+        android:id="@+id/lvExp"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 
 </android.widget.LinearLayout>
 

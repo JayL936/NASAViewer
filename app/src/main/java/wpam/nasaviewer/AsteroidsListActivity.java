@@ -5,14 +5,18 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
+import android.icu.text.SimpleDateFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
@@ -34,11 +38,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
-public class AsteroidsListActivity extends ListActivity { //implements LoaderManager.LoaderCallbacks<Cursor>{
+public class AsteroidsListActivity extends AppCompatActivity {
 
-    private ProgressDialog progressDialog;
+    ExpandableListAdapter listAdapter;
+    ExpandableListView expListView;
+    HashMap<String, List<String>> listDataChild;
+    List<String> listDataHeader;
     String dayStart;
     String monthStart;
     String yearStart;
@@ -46,16 +55,26 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
     String monthEnd;
     String yearEnd;
 
-    private ListView lv;
-
-    ArrayList<String> data = new ArrayList<String>();
+    ArrayList<String> data;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_asteroids_list);
 
-        //lv = (ListView) findViewById(R.id.text_list_view);
+        getSupportActionBar().setTitle("Asteroids");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Create a progress bar to display while the list loads
+        // ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar2); //new ProgressBar(this);
+        // progressBar.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.WRAP_CONTENT,
+        //         ListView.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
+        // progressBar.setIndeterminate(true);
+        //getListView().setEmptyView(progressBar);
+
+        // Must add the progress bar to the root of the layout
+        // ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
+        // root.addView(progressBar);
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -68,18 +87,29 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
         yearEnd = extras.getString("YEAREND");
 
         getJSON json = new getJSON();
-        json.execute("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + yearStart + "-" + monthStart +"-" + dayStart +
+        json.execute("https://api.nasa.gov/neo/rest/v1/feed?start_date=" + yearStart + "-" + monthStart + "-" + dayStart +
                 "&end_date=" + yearEnd + "-" + monthEnd + "-" + dayEnd + "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
 
-       // data.add("one");
-        //data.add("two");
-        // storing string resources into Array
-        // here you store the array of string you got from the database
+        expListView = (ExpandableListView) findViewById(R.id.lvExp);
+        // Listview on child click listener
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
-        // Binding Array to ListAdapter
-      //  this.setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data));
-        // refer the ArrayAdapter Document in developer.android.com
-      //  lv = getListView();
+                                                @Override
+                                                public boolean onChildClick(ExpandableListView parent, View v,
+                                                                            int groupPosition, int childPosition, long id) {
+                                                    // TODO Auto-generated method stub
+                                                    Toast.makeText(
+                                                            getApplicationContext(),
+                                                            listDataHeader.get(groupPosition)
+                                                                    + " : "
+                                                                    + listDataChild.get(
+                                                                    listDataHeader.get(groupPosition)).get(
+                                                                    childPosition), Toast.LENGTH_SHORT)
+                                                            .show();
+                                                    return false;
+                                                }
+                                            });
+    }
 
         // listening to single list item on click
       /*  lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -97,20 +127,7 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
             }
         });*/
 
-
-    }
-
     private class getJSON extends AsyncTask<String, Void, String> {
-
- /*       @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(getApplicationContext());
-            progressDialog.setMessage("Please wait...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-        }*/
 
         @Override
         protected String doInBackground(String[] params) {
@@ -142,16 +159,49 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
 
         @Override
         protected void onPostExecute(String message) {
+            listDataChild = new HashMap<String, List<String>>();
+            listDataHeader = new ArrayList<String>();
+            String begin = yearStart + "-" + monthStart + "-" + dayStart;
+            String end = yearEnd + "-" + monthEnd + "-" + dayEnd;
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar calendarActual = Calendar.getInstance();
+            Calendar calendarEnd = Calendar.getInstance();
+
+            try {
+                calendarActual.setTime(simpleDateFormat.parse(begin));
+                calendarEnd.setTime(simpleDateFormat.parse(end));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            calendarEnd.add(Calendar.DATE, 1);
+
             try {
                 JSONObject object = new JSONObject(message);
                 JSONObject asteroids = object.getJSONObject("near_earth_objects");
-                if (Integer.parseInt(monthEnd) < 10)
-                    monthEnd = "0" + monthEnd;
-                JSONArray asteroidsList = asteroids.getJSONArray(yearEnd + "-" + monthEnd + "-" + dayEnd);
-                for (int i=0; i<asteroidsList.length(); i++) {
-                    JSONObject asteroid = asteroidsList.getJSONObject(i);
-                    String name = asteroid.getString("name");
-                    data.add(name);
+
+                while (calendarActual.before(calendarEnd)) {
+                    data = new ArrayList<String>();
+                    String year = String.valueOf(calendarActual.get(Calendar.YEAR));
+                    String month = String.valueOf(calendarActual.get(Calendar.MONTH) + 1);
+                    if (Integer.parseInt(month) < 10)
+                        month = "0" + month;
+                    String day = String.valueOf(calendarActual.get(Calendar.DAY_OF_MONTH));
+                    if (Integer.parseInt(day) < 10)
+                        day = "0" + day;
+                    String date = year + "-" + month + "-" + day;
+                    JSONArray asteroidsList = asteroids.getJSONArray(date);
+                    for (int i = 0; i < asteroidsList.length(); i++) {
+                        JSONObject asteroid = asteroidsList.getJSONObject(i);
+                        String name = asteroid.getString("name");
+
+                        data.add(name);
+                    }
+                    listDataHeader.add(date);
+                    listDataChild.put(date, data);
+
+                    calendarActual.add(Calendar.DATE, 1);
                 }
 
             } catch (Exception e) {
@@ -160,84 +210,12 @@ public class AsteroidsListActivity extends ListActivity { //implements LoaderMan
                 e.printStackTrace();
             }
 
-          /*  if (progressDialog.isShowing()) {
-                progressDialog.dismiss();
-            }*/
-            lv = getListView();
+            expListView = (ExpandableListView) findViewById(R.id.lvExp);
+            listAdapter = new ExpandableListAdapter(getApplicationContext(), listDataHeader, listDataChild);
+            expListView.setAdapter(listAdapter);
 
-            //TODO Null pointer exception - nie widzi list view
-            lv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, data));
+            ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar3);
+            progressBar.setVisibility(View.GONE);
         }
     }
-
-   /* // This is the Adapter being used to display the list's data
-    SimpleCursorAdapter mAdapter;
-
-    // These are the Contacts rows that we will retrieve
-    static final String[] PROJECTION = new String[] {ContactsContract.Data._ID,
-            ContactsContract.Data.DISPLAY_NAME};
-
-    // This is the select criteria
-    static final String SELECTION = "((" +
-            ContactsContract.Data.DISPLAY_NAME + " NOTNULL) AND (" +
-            ContactsContract.Data.DISPLAY_NAME + " != '' ))";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Create a progress bar to display while the list loads
-        ProgressBar progressBar = new ProgressBar(this);
-        progressBar.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.WRAP_CONTENT,
-                ListView.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        progressBar.setIndeterminate(true);
-        getListView().setEmptyView(progressBar);
-
-        // Must add the progress bar to the root of the layout
-        ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-        root.addView(progressBar);
-
-        // For the cursor adapter, specify which columns go into which views
-        String[] fromColumns = {ContactsContract.Data.DISPLAY_NAME};
-        int[] toViews = {android.R.id.text1}; // The TextView in simple_list_item_1
-
-        // Create an empty adapter we will use to display the loaded data.
-        // We pass null for the cursor, then update it in onLoadFinished()
-        mAdapter = new SimpleCursorAdapter(this,
-                android.R.layout.simple_list_item_1, null,
-                fromColumns, toViews, 0);
-        setListAdapter(mAdapter);
-
-        // Prepare the loader.  Either re-connect with an existing one,
-        // or start a new one.
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    // Called when a new Loader needs to be created
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(this, ContactsContract.Data.CONTENT_URI,
-                PROJECTION, SELECTION, null, null);
-    }
-
-    // Called when a previously created loader has finished loading
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // Swap the new cursor in.  (The framework will take care of closing the
-        // old cursor once we return.)
-        mAdapter.swapCursor(data);
-    }
-
-    // Called when a previously created loader is reset, making the data unavailable
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // This is called when the last Cursor provided to onLoadFinished()
-        // above is about to be closed.  We need to make sure we are no
-        // longer using it.
-        mAdapter.swapCursor(null);
-    }
-
-   // @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        // Do something when a list item is clicked
-    }*/
 }
