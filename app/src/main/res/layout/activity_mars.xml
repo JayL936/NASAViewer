@@ -1,9 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="wpam.nasaviewer.MarsActivity">
 
-</android.support.constraint.ConstraintLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+    <android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="wpam.nasaviewer.MarsActivity">
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/radioButtonEarth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Earth date"
+                android:onClick="onRadioButtonClicked"
+                android:padding="5dp"/>
+
+            <RadioButton
+                android:id="@+id/radioButtonSol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Mars sol"
+                android:onClick="onRadioButtonClicked"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/textViewRovers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="Rovers" />
+
+            <Spinner
+                android:id="@+id/spinnerRovers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="5dp" />
+
+            <TextView
+                android:id="@+id/textViewCameras"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="Cameras" />
+
+            <Spinner
+                android:id="@+id/spinnerCameras"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:padding="5dp" />
+
+            <TextView
+                android:id="@+id/textViewMarsEarthDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:layout_weight="1"
+                android:text="Pick date"
+                android:gravity="center"/>
+
+            <DatePicker
+                android:id="@+id/datePickerMars"
+                android:layout_width="match_parent"
+                android:layout_height="135dp"
+                android:calendarViewShown="false"
+                android:datePickerMode="spinner"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/textViewMarsMarsSol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pick Mars sol"
+                android:gravity="center"
+                android:padding="5dp"/>
+
+            <SeekBar
+                android:id="@+id/seekBarSol"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/textViewSolVal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0"
+                android:gravity="center"
+                android:padding="5dp"/>
+
+            <Button
+                android:id="@+id/buttonShowMars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Show photos"
+                android:onClick="btnShowMars_OnClick"/>
+
+        </RadioGroup>
+
+    </android.widget.LinearLayout>
+</ScrollView>

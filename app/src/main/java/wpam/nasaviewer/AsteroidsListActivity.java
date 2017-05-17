@@ -1,31 +1,14 @@
 package wpam.nasaviewer;
 
 
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.drawable.GradientDrawable;
 import android.icu.text.SimpleDateFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
-import android.widget.SimpleCursorAdapter;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -65,17 +48,6 @@ public class AsteroidsListActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Asteroids");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Create a progress bar to display while the list loads
-        // ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar2); //new ProgressBar(this);
-        // progressBar.setLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.WRAP_CONTENT,
-        //         ListView.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
-        // progressBar.setIndeterminate(true);
-        //getListView().setEmptyView(progressBar);
-
-        // Must add the progress bar to the root of the layout
-        // ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-        // root.addView(progressBar);
-
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         dayStart = extras.getString("DAYSTART");
@@ -94,38 +66,29 @@ public class AsteroidsListActivity extends AppCompatActivity {
         // Listview on child click listener
         expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 
-                                                @Override
-                                                public boolean onChildClick(ExpandableListView parent, View v,
-                                                                            int groupPosition, int childPosition, long id) {
-                                                    // TODO Auto-generated method stub
-                                                    Toast.makeText(
-                                                            getApplicationContext(),
-                                                            listDataHeader.get(groupPosition)
-                                                                    + " : "
-                                                                    + listDataChild.get(
-                                                                    listDataHeader.get(groupPosition)).get(
-                                                                    childPosition), Toast.LENGTH_SHORT)
-                                                            .show();
-                                                    return false;
-                                                }
-                                            });
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                // TODO Auto-generated method stub
+                Toast.makeText(
+                        getApplicationContext(),
+                        listDataHeader.get(groupPosition)
+                                + " : "
+                                + listDataChild.get(
+                                listDataHeader.get(groupPosition)).get(
+                                childPosition), Toast.LENGTH_SHORT)
+                        .show();
+
+                Intent intent1 = new Intent(getApplicationContext(), AsteroidShowActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString("DATA", listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
+                intent1.putExtras(extras);
+                startActivity(intent1);
+                return false;
+            }
+        });
     }
 
-        // listening to single list item on click
-      /*  lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-
-                // selected item
-                String num = ((TextView) view).getText().toString();
-
-                // Launching new Activity on selecting single List Item
-                Intent i = new Intent(getApplicationContext(), AsteroidShowActivity.class);
-                // sending data to new activity
-                i.putExtra("number", num);
-                startActivity(i);
-            }
-        });*/
 
     private class getJSON extends AsyncTask<String, Void, String> {
 
@@ -194,7 +157,7 @@ public class AsteroidsListActivity extends AppCompatActivity {
                     JSONArray asteroidsList = asteroids.getJSONArray(date);
                     for (int i = 0; i < asteroidsList.length(); i++) {
                         JSONObject asteroid = asteroidsList.getJSONObject(i);
-                        String name = asteroid.getString("name");
+                        String name = "ID: " + asteroid.getString("neo_reference_id") + " Name: " + asteroid.getString("name");
 
                         data.add(name);
                     }
