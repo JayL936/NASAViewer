@@ -5,6 +5,8 @@ import android.icu.text.SimpleDateFormat;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,15 +31,20 @@ public class MarsPhotosActivity extends AppCompatActivity {
     private String rover;
     private String camera;
 
-    List<String> urls = new ArrayList<String>();
+    RecyclerView recyclerView;
+    ArrayList<String> urls = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mars_photos);
 
-        getSupportActionBar().setTitle("Mars");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        recyclerView = (RecyclerView)findViewById(R.id.imagegallery);
+        recyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),1);
+        recyclerView.setLayoutManager(layoutManager);
+
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -49,22 +56,22 @@ public class MarsPhotosActivity extends AppCompatActivity {
             if (camera.equals("All")) {
                 json.execute("https://api.nasa.gov/mars-photos/api/v1/rovers/" + rover + "/photos?" +
                         "earth_date=" + year + "-" + month + "-" + day +
-                        "&page=1&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
+                        "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
             }
             else {
                 json.execute("https://api.nasa.gov/mars-photos/api/v1/rovers/" + rover + "/photos?" +
                         "earth_date=" + year + "-" + month + "-" + day + "&camera=" + camera +
-                        "&page=1&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
+                        "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
             }
         }
         else {
             if (camera.equals("All")) {
                 json.execute("https://api.nasa.gov/mars-photos/api/v1/rovers/" + rover + "/photos?" +
-                        "sol=" + sol + "&page=1&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
+                        "sol=" + sol + "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
             } else {
                 json.execute("https://api.nasa.gov/mars-photos/api/v1/rovers/" + rover + "/photos?" +
                         "sol=" + sol + "&camera=" + camera +
-                        "&page=1&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
+                        "&api_key=Wt9A065T8VZw0T7TKMPR2L2d3dyDmeRiJkv6ApDh");
             }
         }
 
@@ -82,7 +89,32 @@ public class MarsPhotosActivity extends AppCompatActivity {
         }
 
         rover = extras.getString("ROVER");
-        camera = extras.getString("CAMERA");
+        camera = setCamera(extras.getString("CAMERA"));
+    }
+
+    private String setCamera(String camera) {
+        switch (camera) {
+            case "Front Hazard Avoidance Camera":
+                return "FHAZ";
+            case "Rear Hazarz Avoidance Camera":
+                return  "RHAZ";
+            case "Mast Camera":
+                return "MAST";
+            case "Chemistry and Camera Complex":
+                return "CHEMCAM";
+            case "Mars Hand Lens Imager":
+                return "MAHLI";
+            case "Mars Descent Imager":
+                return "MARDI";
+            case "Navigation Camera":
+                return "NAVCAM";
+            case "Panoramic Camera":
+                return "PANCAM";
+            case "Miniature Thermal Emission Spectrometer (Mini-TES)":
+                return "MINITES";
+            default:
+                return "All";
+        }
     }
 
     private class getJSON extends AsyncTask<String, Void, String> {
@@ -129,6 +161,10 @@ public class MarsPhotosActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            recyclerView = (RecyclerView)findViewById(R.id.imagegallery);
+            MyAdapter adapter = new MyAdapter(getApplicationContext(), urls);
+            recyclerView.setAdapter(adapter);
         }
     }
 }
